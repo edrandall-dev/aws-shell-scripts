@@ -1,0 +1,9 @@
+AWS=$(which aws)
+
+echo "Select Profile from list:"
+echo
+grep '\[profile' ~/.aws/config | awk {'print $2'} | sed 's/\]//'
+echo
+read PROFILE
+
+$AWS ec2 describe-subnets --profile=$PROFILE --query "Subnets[*].{Name: Tags[?Key == 'Name'], AZ:AvailabilityZone, CIDR:CidrBlock}" --filters "Name=tag:ManagedBy,Values=XXXXXXX" --output=json --no-cli-pager
