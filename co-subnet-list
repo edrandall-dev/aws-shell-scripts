@@ -1,0 +1,50 @@
+AWS=$(which aws)
+
+echo "Select Profile from list:"
+echo
+grep '\[profile' ~/.aws/config | awk {'print $2'} | sed 's/\]//'
+echo
+read PROFILE
+
+clear
+echo
+echo "***** $PROFILE *****"
+echo
+echo "####################################################"
+echo
+
+$AWS ec2 describe-vpcs \
+  --no-cli-pager \
+  --output=yaml \
+  --profile=$PROFILE \
+  --filters Name=tag:ManagedBy,Values=Rackspace \
+  --query "Vpcs[*].{Name: Tags[?Key == 'Name'] , CIDR:CidrBlock}" \
+  | grep -v "Name:" \
+  | grep -v "Key: Name" \
+  | sed 's/  Value:/VPC Name:/'
+
+echo
+echo "####################################################"
+echo
+
+ZONE=('eu-west-2a' 'eu-west-2b' 'eu-west-2c')
+
+for zone in "${ZONE[@]}"
+do
+  echo "**** $zone ****"
+  $AWS ec2 describe-subnets \
+    --no-cli-pager \
+    --output=yaml \
+    --profile=$PROFILE \
+    --filters Name=availabilityZone,Values=$zone Name=tag:ManagedBy,Values=XXXXXX \
+    --query "Subnets[*].{Name: Tags[?Key == 'Name'], CIDR:CidrBlock}" \
+    | grep -v "Name:" \
+    | grep -v "Key: Name" \
+    | sed 's/   Value://' \
+    | sed 's/CIDR: //'
+
+    echo
+  done
+
+echo "####################################################"
+echo
