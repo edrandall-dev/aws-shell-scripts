@@ -17,7 +17,7 @@ $AWS ec2 describe-vpcs \
   --no-cli-pager \
   --output=yaml \
   --profile=$PROFILE \
-  --filters Name=tag:ManagedBy,Values=Rackspace \
+  --filters Name=tag:ManagedBy,Values=xxxxx \
   --query "Vpcs[*].{Name: Tags[?Key == 'Name'] , CIDR:CidrBlock}" \
   | grep -v "Name:" \
   | grep -v "Key: Name" \
